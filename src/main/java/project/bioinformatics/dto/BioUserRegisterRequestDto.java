@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.util.Set;
 import lombok.Getter;
+import project.bioinformatics.model.Role;
 import project.bioinformatics.validation.FieldMatch;
 
 @Getter
@@ -17,6 +18,9 @@ public class BioUserRegisterRequestDto {
     @Size(min = 1, max = 255)
     @Email
     private String email;
+    @NotNull
+    @Size(min = 1, max = 255)
+    private String username;
     @NotNull
     @Size(min = 8, max = 255)
     @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$",
@@ -30,5 +34,5 @@ public class BioUserRegisterRequestDto {
                     + " one digit, and one special character.")
     private String repeatPassword;
     @NotNull
-    private Set<String> roles;
+    private Set<Role.RoleName> roles;
 }

@@ -8,4 +8,6 @@ import project.bioinformatics.model.BioUser;
 @Repository
 public interface BioUserRepository extends JpaRepository<BioUser, Long> {
     Optional<BioUser> findByEmail(String email);
+
+    Optional<BioUser> findByUsername(String username);
 }

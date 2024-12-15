@@ -1,6 +1,5 @@
 package project.bioinformatics.model;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -31,9 +30,11 @@ public class BioUser implements UserDetails {
     private Long id;
     @Column(nullable = false, unique = true)
     private String email;
+    @Column(nullable = false, unique = true)
+    private String username;
     @Column(nullable = false)
     private String password;
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),

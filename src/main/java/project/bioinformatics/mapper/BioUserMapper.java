@@ -1,6 +1,5 @@
 package project.bioinformatics.mapper;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.mapstruct.Mapper;
@@ -16,19 +15,20 @@ public interface BioUserMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "authorities", ignore = true)
-    @Mapping(target = "roles", expression = "java(mapRoles(bioUserRegisterRequestDto.getRoles()))")
+    @Mapping(source = "username", target = "username")
+    @Mapping(source = "roles", target = "roles")
     BioUser toBioUser(BioUserRegisterRequestDto bioUserRegisterRequestDto);
 
     BioUserResponseDto toBioUserResponseDto(BioUser bioUser);
 
-    default Set<Role> mapRoles(Set<String> roleNames) {
+    default Set<Role> mapRoles(Set<Role.RoleName> roleNames) {
         if (roleNames == null) {
-            return new HashSet<>();
+            return null;
         }
         return roleNames.stream()
-                .map(name -> {
+                .map(roleName -> {
                     Role role = new Role();
-                    role.setName(Role.RoleName.valueOf(name));
+                    role.setName(roleName);
                     return role;
                 })
                 .collect(Collectors.toSet());

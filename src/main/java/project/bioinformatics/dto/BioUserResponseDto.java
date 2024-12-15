@@ -8,4 +8,5 @@ import lombok.Setter;
 public class BioUserResponseDto {
     private Long id;
     private String email;
+    private String username;
 }

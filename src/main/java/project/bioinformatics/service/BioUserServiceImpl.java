@@ -1,5 +1,7 @@
 package project.bioinformatics.service;
 
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -9,7 +11,9 @@ import project.bioinformatics.dto.BioUserResponseDto;
 import project.bioinformatics.exception.RegistrationException;
 import project.bioinformatics.mapper.BioUserMapper;
 import project.bioinformatics.model.BioUser;
+import project.bioinformatics.model.Role;
 import project.bioinformatics.repository.biouser.BioUserRepository;
+import project.bioinformatics.repository.role.RoleRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -17,22 +21,42 @@ public class BioUserServiceImpl implements BioUserService {
     private final BioUserRepository bioUserRepository;
     private final BioUserMapper bioUserMapper;
     private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
 
     @Override
     public BioUserResponseDto register(BioUserRegisterRequestDto requestDto)
             throws RegistrationException {
         if (bioUserRepository.findByEmail(requestDto.getEmail()).isPresent()) {
-            throw new RegistrationException("User with email: " + requestDto.getEmail()
+            throw new RegistrationException("User with email " + requestDto.getEmail()
                     + " already exists");
         }
+        if (bioUserRepository.findByUsername(requestDto.getUsername()).isPresent()) {
+            throw new RegistrationException("User with username " + requestDto.getUsername()
+                    + " already exists");
+        }
+
+        Set<Role> roles;
+        if (requestDto.getRoles() == null || requestDto.getRoles().isEmpty()) {
+            roles = Set.of(roleRepository.findByName(Role.RoleName.ROLE_USER)
+                    .orElseThrow(() -> new RegistrationException(
+                            "Default role ROLE_USER not found")));
+        } else {
+            roles = requestDto.getRoles().stream()
+                    .map(roleName -> roleRepository.findByName(roleName)
+                            .orElseThrow(() -> new RegistrationException(
+                                    "Role " + roleName + " not found")))
+                    .collect(Collectors.toSet());
+        }
+
         BioUser bioUser = bioUserMapper.toBioUser(requestDto);
+        bioUser.setRoles(roles);
         bioUser.setPassword(passwordEncoder.encode(requestDto.getPassword()));
         try {
             BioUser savedUser = bioUserRepository.save(bioUser);
             return bioUserMapper.toBioUserResponseDto(savedUser);
         } catch (DataIntegrityViolationException e) {
-            throw new RegistrationException("User with email: " + requestDto.getEmail()
-                    + " already exists");
+            throw new RegistrationException("Could not register user. Please"
+                    + " ensure the username and email are unique.");
         }
     }
 }
