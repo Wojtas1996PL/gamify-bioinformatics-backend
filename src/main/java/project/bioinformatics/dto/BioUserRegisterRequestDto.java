@@ -7,12 +7,8 @@ import jakarta.validation.constraints.Size;
 import java.util.Set;
 import lombok.Getter;
 import project.bioinformatics.model.Role;
-import project.bioinformatics.validation.FieldMatch;
 
 @Getter
-@FieldMatch(password = "password", repeatPassword = "repeatPassword",
-        message = "Passwords do not match")
-
 public class BioUserRegisterRequestDto {
     @NotNull
     @Size(min = 1, max = 255)
@@ -27,12 +23,6 @@ public class BioUserRegisterRequestDto {
             message = "Password must contain at least one uppercase letter,"
                     + " one digit, and one special character.")
     private String password;
-    @NotNull
-    @Size(min = 8, max = 255)
-    @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$",
-            message = "Password must contain at least one uppercase letter,"
-                    + " one digit, and one special character.")
-    private String repeatPassword;
     @NotNull
     private Set<Role.RoleName> roles;
 }
