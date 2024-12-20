@@ -19,6 +19,7 @@ public interface BioUserMapper {
     @Mapping(source = "roles", target = "roles")
     BioUser toBioUser(BioUserRegisterRequestDto bioUserRegisterRequestDto);
 
+    @Mapping(target = "username", expression = "java(bioUser.getUsernameField())")
     BioUserResponseDto toBioUserResponseDto(BioUser bioUser);
 
     default Set<Role> mapRoles(Set<Role.RoleName> roleNames) {

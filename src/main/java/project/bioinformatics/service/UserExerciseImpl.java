@@ -23,11 +23,34 @@ public class UserExerciseImpl implements UserExerciseService {
 
     @Override
     public UserExerciseDto startUserExercise(int exerciseId) {
-        UserExercise userExercise = new UserExercise();
-        userExercise.setUserId(getAuthenticatedUser().getId());
-        userExercise.setExerciseId(exerciseId);
-        userExercise.setProgress(DEFAULT_EXERCISE_PROGRESS);
-        return userExerciseMapper.toUserExerciseDto(userExerciseRepository.save(userExercise));
+        BioUser authenticatedUser = getAuthenticatedUser();
+        UserExercise usersExercise = userExerciseRepository.findByUserIdAndExerciseId(
+                authenticatedUser.getId(), exerciseId)
+                .orElseGet(() -> {
+                    UserExercise userExercise = new UserExercise();
+                    userExercise.setUserId(getAuthenticatedUser().getId());
+                    userExercise.setExerciseId(exerciseId);
+                    userExercise.setProgress(DEFAULT_EXERCISE_PROGRESS);
+                    return userExerciseRepository.save(userExercise);
+                });
+        return userExerciseMapper.toUserExerciseDto(userExerciseRepository.save(usersExercise));
+    }
+
+    @Override
+    public UserExerciseDto updateExerciseProgress(UserExerciseDto userExerciseDto) {
+        BioUser authenticatedUser = getAuthenticatedUser();
+        UserExercise usersExercise = userExerciseRepository.findByUserIdAndExerciseId(
+                authenticatedUser.getId(), userExerciseDto.getExerciseId())
+                .orElseGet(() -> {
+                    UserExercise newUserExercise = new UserExercise();
+                    newUserExercise.setUserId(authenticatedUser.getId());
+                    newUserExercise.setExerciseId(userExerciseDto.getExerciseId());
+                    newUserExercise.setProgress(DEFAULT_EXERCISE_PROGRESS);
+                    return newUserExercise;
+                });
+
+        usersExercise.setProgress(userExerciseDto.getProgress());
+        return userExerciseMapper.toUserExerciseDto(userExerciseRepository.save(usersExercise));
     }
 
     private BioUser getAuthenticatedUser() {

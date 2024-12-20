@@ -4,4 +4,6 @@ import project.bioinformatics.dto.UserExerciseDto;
 
 public interface UserExerciseService {
     UserExerciseDto startUserExercise(int exerciseId);
+
+    UserExerciseDto updateExerciseProgress(UserExerciseDto userExerciseDto);
 }

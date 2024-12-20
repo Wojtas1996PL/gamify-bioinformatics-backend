@@ -60,4 +60,9 @@ public class ExerciseController {
         return userExerciseService.startUserExercise(exerciseId);
     }
 
+    @PutMapping("/progress")
+    public UserExerciseDto updateExerciseProgress(
+            @RequestBody @Valid UserExerciseDto userExerciseDto) {
+        return userExerciseService.updateExerciseProgress(userExerciseDto);
+    }
 }

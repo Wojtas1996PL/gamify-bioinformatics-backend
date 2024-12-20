@@ -49,11 +49,15 @@ public class BioUser implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return email;
     }
 
     @Override
     public String getPassword() {
         return password;
+    }
+
+    public String getUsernameField() {
+        return username;
     }
 }
