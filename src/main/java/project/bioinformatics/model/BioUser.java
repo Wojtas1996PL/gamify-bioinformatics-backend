@@ -41,6 +41,9 @@ public class BioUser implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new HashSet<>();
+    private String name;
+    private String photo;
+    private int scorePoints;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
