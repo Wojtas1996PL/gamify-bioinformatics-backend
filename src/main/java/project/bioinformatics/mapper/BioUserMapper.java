@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import project.bioinformatics.config.MapperConfig;
+import project.bioinformatics.dto.BioUserLoginRequestDto;
 import project.bioinformatics.dto.BioUserRegisterRequestDto;
 import project.bioinformatics.dto.BioUserResponseDto;
 import project.bioinformatics.model.BioUser;
@@ -21,6 +22,10 @@ public interface BioUserMapper {
 
     @Mapping(target = "username", expression = "java(bioUser.getUsernameField())")
     BioUserResponseDto toBioUserResponseDto(BioUser bioUser);
+
+    @Mapping(source = "email", target = "email")
+    @Mapping(source = "password", target = "password")
+    BioUserLoginRequestDto toBioUserLoginRequestDto(BioUserRegisterRequestDto bioUser);
 
     default Set<Role> mapRoles(Set<Role.RoleName> roleNames) {
         if (roleNames == null) {

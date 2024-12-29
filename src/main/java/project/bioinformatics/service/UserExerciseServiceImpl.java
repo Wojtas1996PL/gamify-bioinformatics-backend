@@ -6,23 +6,33 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import project.bioinformatics.dto.UserExerciseDto;
+import project.bioinformatics.exception.EntityNotFoundException;
 import project.bioinformatics.mapper.UserExerciseMapper;
 import project.bioinformatics.model.BioUser;
 import project.bioinformatics.model.UserExercise;
 import project.bioinformatics.repository.biouser.BioUserRepository;
+import project.bioinformatics.repository.exercise.ExerciseRepository;
 import project.bioinformatics.repository.exercise.UserExerciseRepository;
 
 @Service
 @RequiredArgsConstructor
-public class UserExerciseImpl implements UserExerciseService {
+public class UserExerciseServiceImpl implements UserExerciseService {
     private static final int DEFAULT_EXERCISE_PROGRESS = 0;
 
     private final BioUserRepository bioUserRepository;
     private final UserExerciseRepository userExerciseRepository;
     private final UserExerciseMapper userExerciseMapper;
+    private final ExerciseRepository exerciseRepository;
 
     @Override
     public UserExerciseDto startUserExercise(int exerciseId) {
+        Long exerciseIdAsLong = (long) exerciseId;
+
+        if (!exerciseRepository.existsById(exerciseIdAsLong)) {
+            throw new EntityNotFoundException("Exercise with ID "
+                    + exerciseId + " not found.");
+        }
+
         BioUser authenticatedUser = getAuthenticatedUser();
         UserExercise usersExercise = userExerciseRepository.findByUserIdAndExerciseId(
                 authenticatedUser.getId(), exerciseId)

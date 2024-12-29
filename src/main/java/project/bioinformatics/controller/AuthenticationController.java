@@ -2,6 +2,7 @@ package project.bioinformatics.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,12 +22,18 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/registration")
-    public BioUserResponseDto register(@Valid @RequestBody BioUserRegisterRequestDto request) {
-        return bioUserService.register(request);
+    public BioUserLoginResponseDto register(@Valid @RequestBody BioUserRegisterRequestDto request) {
+        BioUserLoginRequestDto loginRequest = bioUserService.register(request);
+        return authenticationService.authenticate(loginRequest);
     }
 
     @PostMapping("/login")
     public BioUserLoginResponseDto login(@Valid @RequestBody BioUserLoginRequestDto request) {
         return authenticationService.authenticate(request);
+    }
+
+    @GetMapping
+    public BioUserResponseDto userInfo() {
+        return bioUserService.getUserInfo();
     }
 }
