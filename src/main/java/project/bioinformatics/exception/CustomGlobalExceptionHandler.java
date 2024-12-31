@@ -62,6 +62,19 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
         return new ResponseEntity<>(body, status);
     }
 
+    @ExceptionHandler(UsernameTakenException.class)
+    public ResponseEntity<Object> handleUsernameTakenException(
+            UsernameTakenException ex,
+            WebRequest request) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", ZonedDateTime.now(ZoneOffset.UTC));
+        body.put("message", ex.getMessage());
+        HttpStatus status = HttpStatus.CONFLICT;
+        body.put("status", status.value());
+
+        return new ResponseEntity<>(body, status);
+    }
+
     private String getErrorMessage(ObjectError objectError) {
         if (objectError instanceof FieldError) {
             String field = ((FieldError) objectError).getField();

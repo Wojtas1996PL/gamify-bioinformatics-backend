@@ -12,7 +12,12 @@ import org.springframework.stereotype.Service;
 import project.bioinformatics.dto.BioUserLoginRequestDto;
 import project.bioinformatics.dto.BioUserRegisterRequestDto;
 import project.bioinformatics.dto.BioUserResponseDto;
+import project.bioinformatics.dto.biouserupdatedto.BioUserNameUpdateDto;
+import project.bioinformatics.dto.biouserupdatedto.BioUserPhotoUpdateDto;
+import project.bioinformatics.dto.biouserupdatedto.BioUserScorePointsUpdateDto;
+import project.bioinformatics.dto.biouserupdatedto.BioUserUsernameUpdateDto;
 import project.bioinformatics.exception.RegistrationException;
+import project.bioinformatics.exception.UsernameTakenException;
 import project.bioinformatics.mapper.BioUserMapper;
 import project.bioinformatics.model.BioUser;
 import project.bioinformatics.model.Role;
@@ -68,6 +73,40 @@ public class BioUserServiceImpl implements BioUserService {
     public BioUserResponseDto getUserInfo() {
         BioUser loggedInUser = getAuthenticatedUser();
         return bioUserMapper.toBioUserResponseDto(loggedInUser);
+    }
+
+    @Override
+    public BioUserResponseDto changeUsername(BioUserUsernameUpdateDto usernameUpdateDto) {
+        if (bioUserRepository.findByUsername(usernameUpdateDto.getUsername()).isPresent()) {
+            throw new UsernameTakenException(
+                    "The username " + usernameUpdateDto.getUsername() + " is already taken.");
+        }
+        BioUser loggedInUser = getAuthenticatedUser();
+        loggedInUser.setUsername(usernameUpdateDto.getUsername());
+        return bioUserMapper.toBioUserResponseDto(bioUserRepository.save(loggedInUser));
+    }
+
+    @Override
+    public BioUserResponseDto changeName(BioUserNameUpdateDto nameUpdateDto) {
+        BioUser loggedInUser = getAuthenticatedUser();
+        loggedInUser.setName(nameUpdateDto.getName());
+        return bioUserMapper.toBioUserResponseDto(bioUserRepository.save(loggedInUser));
+    }
+
+    @Override
+    public BioUserResponseDto changePhoto(BioUserPhotoUpdateDto photoUpdateDto) {
+        BioUser loggedInUser = getAuthenticatedUser();
+        loggedInUser.setPhoto(photoUpdateDto.getPhoto());
+        return bioUserMapper.toBioUserResponseDto(bioUserRepository.save(loggedInUser));
+    }
+
+    @Override
+    public BioUserResponseDto addScorePoints(BioUserScorePointsUpdateDto scorePointsUpdateDto) {
+        BioUser loggedInUser = getAuthenticatedUser();
+        int scorePoints = loggedInUser.getScorePoints();
+        scorePoints += scorePointsUpdateDto.getScorePoints();
+        loggedInUser.setScorePoints(scorePoints);
+        return bioUserMapper.toBioUserResponseDto(bioUserRepository.save(loggedInUser));
     }
 
     private BioUser getAuthenticatedUser() {

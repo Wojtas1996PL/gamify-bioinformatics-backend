@@ -13,4 +13,5 @@ public class BioUserResponseDto {
     private String name;
     private int scorePoints;
     private Set<String> roles;
+    private String photo;
 }
