@@ -12,10 +12,13 @@ import org.springframework.stereotype.Service;
 import project.bioinformatics.dto.BioUserLoginRequestDto;
 import project.bioinformatics.dto.BioUserRegisterRequestDto;
 import project.bioinformatics.dto.BioUserResponseDto;
+import project.bioinformatics.dto.ForgotPasswordRequest;
 import project.bioinformatics.dto.biouserupdatedto.BioUserNameUpdateDto;
 import project.bioinformatics.dto.biouserupdatedto.BioUserPhotoUpdateDto;
 import project.bioinformatics.dto.biouserupdatedto.BioUserScorePointsUpdateDto;
+import project.bioinformatics.dto.biouserupdatedto.BioUserUpdateDto;
 import project.bioinformatics.dto.biouserupdatedto.BioUserUsernameUpdateDto;
+import project.bioinformatics.exception.EntityNotFoundException;
 import project.bioinformatics.exception.RegistrationException;
 import project.bioinformatics.exception.UsernameTakenException;
 import project.bioinformatics.mapper.BioUserMapper;
@@ -23,6 +26,7 @@ import project.bioinformatics.model.BioUser;
 import project.bioinformatics.model.Role;
 import project.bioinformatics.repository.biouser.BioUserRepository;
 import project.bioinformatics.repository.role.RoleRepository;
+import project.bioinformatics.security.JwtUtil;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +35,8 @@ public class BioUserServiceImpl implements BioUserService {
     private final BioUserMapper bioUserMapper;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final EmailService emailService;
+    private final JwtUtil jwtUtil;
 
     @Override
     public BioUserLoginRequestDto register(BioUserRegisterRequestDto requestDto)
@@ -107,6 +113,64 @@ public class BioUserServiceImpl implements BioUserService {
         scorePoints += scorePointsUpdateDto.getScorePoints();
         loggedInUser.setScorePoints(scorePoints);
         return bioUserMapper.toBioUserResponseDto(bioUserRepository.save(loggedInUser));
+    }
+
+    @Override
+    public BioUserResponseDto updateUser(BioUserUpdateDto bioUserUpdateDto) {
+        BioUser loggedInUser = getAuthenticatedUser();
+        boolean emailChanged = false;
+
+        if (bioUserUpdateDto.getUsername() != null && !bioUserUpdateDto.getUsername().isEmpty()) {
+            if (bioUserRepository.findByUsername(bioUserUpdateDto.getUsername()).isPresent()) {
+                throw new UsernameTakenException(
+                        "The username " + bioUserUpdateDto.getUsername() + " is already taken.");
+            }
+            loggedInUser.setUsername(bioUserUpdateDto.getUsername());
+        }
+
+        if (bioUserUpdateDto.getName() != null && !bioUserUpdateDto.getName().isEmpty()) {
+            loggedInUser.setName(bioUserUpdateDto.getName());
+        }
+
+        if (bioUserUpdateDto.getPhoto() != null && !bioUserUpdateDto.getPhoto().isEmpty()) {
+            loggedInUser.setPhoto(bioUserUpdateDto.getPhoto());
+        }
+        if (bioUserUpdateDto.getPassword() != null && !bioUserUpdateDto.getPassword().isEmpty()) {
+            String encodedPassword = passwordEncoder.encode(bioUserUpdateDto.getPassword());
+            loggedInUser.setPassword(encodedPassword);
+        }
+
+        if (bioUserUpdateDto.getEmail() != null && !bioUserUpdateDto.getEmail().isEmpty()) {
+            if (bioUserRepository.findByEmail(bioUserUpdateDto.getEmail()).isPresent()) {
+                throw new RegistrationException(
+                        "The email " + bioUserUpdateDto.getEmail() + " is already in use.");
+            }
+            loggedInUser.setEmail(bioUserUpdateDto.getEmail());
+            emailChanged = true;
+            emailService.sendChangePasswordEmails(loggedInUser.getUsername(),
+                    loggedInUser.getEmail(), bioUserUpdateDto.getEmail());
+
+        }
+        bioUserRepository.save(loggedInUser);
+
+        String newToken = null;
+        if (emailChanged) {
+            newToken = jwtUtil.generateToken(loggedInUser.getEmail());
+        }
+
+        BioUserResponseDto bioUserResponseDto = bioUserMapper.toBioUserResponseDto(loggedInUser);
+        if (newToken != null) {
+            bioUserResponseDto.setToken(newToken);
+        }
+        return bioUserResponseDto;
+    }
+
+    @Override
+    public void emailCheck(ForgotPasswordRequest forgotPasswordRequest) {
+        bioUserRepository.findByEmail(forgotPasswordRequest.getEmail())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "There is no account registered in database with email: "
+                        + forgotPasswordRequest.getEmail()));
     }
 
     private BioUser getAuthenticatedUser() {

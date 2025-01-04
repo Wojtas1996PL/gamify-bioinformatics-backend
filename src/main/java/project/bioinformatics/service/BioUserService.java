@@ -3,9 +3,11 @@ package project.bioinformatics.service;
 import project.bioinformatics.dto.BioUserLoginRequestDto;
 import project.bioinformatics.dto.BioUserRegisterRequestDto;
 import project.bioinformatics.dto.BioUserResponseDto;
+import project.bioinformatics.dto.ForgotPasswordRequest;
 import project.bioinformatics.dto.biouserupdatedto.BioUserNameUpdateDto;
 import project.bioinformatics.dto.biouserupdatedto.BioUserPhotoUpdateDto;
 import project.bioinformatics.dto.biouserupdatedto.BioUserScorePointsUpdateDto;
+import project.bioinformatics.dto.biouserupdatedto.BioUserUpdateDto;
 import project.bioinformatics.dto.biouserupdatedto.BioUserUsernameUpdateDto;
 import project.bioinformatics.exception.RegistrationException;
 
@@ -22,4 +24,8 @@ public interface BioUserService {
     BioUserResponseDto changePhoto(BioUserPhotoUpdateDto photoUpdateDto);
 
     BioUserResponseDto addScorePoints(BioUserScorePointsUpdateDto scorePointsUpdateDto);
+
+    BioUserResponseDto updateUser(BioUserUpdateDto bioUserUpdateDto);
+
+    void emailCheck(ForgotPasswordRequest forgotPasswordRequest);
 }

@@ -22,4 +22,9 @@ public class AuthenticationService {
         String token = jwtUtil.generateToken(authentication.getName());
         return new BioUserLoginResponseDto(token);
     }
+
+    public String generateResetPasswordToken(String email) {
+        return jwtUtil.generateResetPasswordToken(email);
+    }
+
 }

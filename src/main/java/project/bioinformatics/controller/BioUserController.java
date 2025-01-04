@@ -11,6 +11,7 @@ import project.bioinformatics.dto.BioUserResponseDto;
 import project.bioinformatics.dto.biouserupdatedto.BioUserNameUpdateDto;
 import project.bioinformatics.dto.biouserupdatedto.BioUserPhotoUpdateDto;
 import project.bioinformatics.dto.biouserupdatedto.BioUserScorePointsUpdateDto;
+import project.bioinformatics.dto.biouserupdatedto.BioUserUpdateDto;
 import project.bioinformatics.dto.biouserupdatedto.BioUserUsernameUpdateDto;
 import project.bioinformatics.service.BioUserService;
 
@@ -47,5 +48,10 @@ public class BioUserController {
     public BioUserResponseDto addScorePoints(
             @Valid @RequestBody BioUserScorePointsUpdateDto scorePointsUpdateDto) {
         return bioUserService.addScorePoints(scorePointsUpdateDto);
+    }
+
+    @PutMapping("/update")
+    public BioUserResponseDto updateUser(@Valid @RequestBody BioUserUpdateDto updateDto) {
+        return bioUserService.updateUser(updateDto);
     }
 }

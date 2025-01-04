@@ -29,7 +29,6 @@ public class ExerciseController {
 
     @PostMapping
     public ExerciseDto addExercise(@Valid @RequestBody ExerciseCreateDto exerciseCreateDto) {
-        System.out.println("Received: " + exerciseCreateDto);
         return exerciseService.addExercise(exerciseCreateDto);
     }
 

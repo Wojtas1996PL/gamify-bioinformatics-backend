@@ -22,6 +22,7 @@ public interface BioUserMapper {
 
     @Mapping(target = "username", expression = "java(bioUser.getUsernameField())")
     @Mapping(target = "roles", expression = "java(mapRolesToRoleNames(bioUser.getRoles()))")
+    @Mapping(target = "token", ignore = true)
     BioUserResponseDto toBioUserResponseDto(BioUser bioUser);
 
     @Mapping(source = "email", target = "email")

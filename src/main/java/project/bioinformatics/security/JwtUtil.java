@@ -3,6 +3,7 @@ package project.bioinformatics.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -20,7 +21,11 @@ public class JwtUtil {
 
     public JwtUtil(@Value("${jwt.secret}")
                    String secretString) {
-        secret = Keys.hmacShaKeyFor(secretString.getBytes(StandardCharsets.UTF_8));
+        if (secretString == null || secretString.isEmpty()) {
+            secret = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+        } else {
+            secret = Keys.hmacShaKeyFor(secretString.getBytes(StandardCharsets.UTF_8));
+        }
     }
 
     public String generateToken(String username) {
@@ -51,5 +56,13 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody();
         return claimsResolver.apply(claims);
+    }
+
+    public String generateResetPasswordToken(String email) {
+        return Jwts.builder()
+                .setSubject(email)
+                .setExpiration(new Date(System.currentTimeMillis() + 15 * 60 * 1000)) // 15 minutes
+                .signWith(secret, SignatureAlgorithm.HS256)
+                .compact();
     }
 }
