@@ -42,7 +42,7 @@ public class AuthenticationController {
         bioUserService.emailCheck(forgotPasswordRequest);
         String token = authenticationService
                 .generateResetPasswordToken(forgotPasswordRequest.getEmail());
-        String resetLink = "http://localhost:5173/set-password/{" + token + "}";
+        String resetLink = "http://localhost:5173/reset/set-password/{" + token + "}";
         emailService.sendResetPasswordLink(forgotPasswordRequest.getEmail(), resetLink);
         return ResponseEntity.ok().build();
     }
