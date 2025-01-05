@@ -8,4 +8,6 @@ public interface EmailService {
     void sendResetPasswordLink(String email, String link);
 
     void sendChangePasswordEmails(String username, String oldEmail, String newEmail);
+
+    void sendSuccessfulPasswordChangeEmail(String username, String email);
 }

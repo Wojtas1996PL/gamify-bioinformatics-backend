@@ -138,6 +138,8 @@ public class BioUserServiceImpl implements BioUserService {
         if (bioUserUpdateDto.getPassword() != null && !bioUserUpdateDto.getPassword().isEmpty()) {
             String encodedPassword = passwordEncoder.encode(bioUserUpdateDto.getPassword());
             loggedInUser.setPassword(encodedPassword);
+            emailService.sendSuccessfulPasswordChangeEmail(loggedInUser.getUsernameField(),
+                    loggedInUser.getEmail());
         }
 
         if (bioUserUpdateDto.getEmail() != null && !bioUserUpdateDto.getEmail().isEmpty()) {
@@ -145,10 +147,11 @@ public class BioUserServiceImpl implements BioUserService {
                 throw new RegistrationException(
                         "The email " + bioUserUpdateDto.getEmail() + " is already in use.");
             }
+            String oldEmail = loggedInUser.getEmail();
             loggedInUser.setEmail(bioUserUpdateDto.getEmail());
             emailChanged = true;
-            emailService.sendChangePasswordEmails(loggedInUser.getUsername(),
-                    loggedInUser.getEmail(), bioUserUpdateDto.getEmail());
+            emailService.sendChangePasswordEmails(loggedInUser.getUsernameField(),
+                    oldEmail, bioUserUpdateDto.getEmail());
 
         }
         bioUserRepository.save(loggedInUser);

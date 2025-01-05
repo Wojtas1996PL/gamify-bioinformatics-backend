@@ -53,4 +53,15 @@ public class EmailServiceImpl implements EmailService {
         mailSender.send(oldEmailMessage);
         mailSender.send(newEmailMessage);
     }
+
+    @Override
+    public void sendSuccessfulPasswordChangeEmail(String username, String email) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject("Bioinformatics Password Change");
+        message.setText("Hello " + username + "! This email is to confirm "
+                + "successful change of your password");
+        message.setFrom("bioinftesting@outlook.com");
+        mailSender.send(message);
+    }
 }
