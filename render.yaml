@@ -1,7 +1,0 @@
-services:
-  - type: web
-    name: gamify-bioinformatics-backend
-    env: java
-    rootDir: .
-    buildCommand: ./mvnw clean install
-    startCommand: java -jar target/Bioinformatics-0.0.1-SNAPSHOT.jar
